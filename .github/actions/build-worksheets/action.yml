@@ -9,7 +9,7 @@ inputs:
   strypify_version:
     description: The version (including leading v) of Strypify to use
     required: false
-    default: 'v1.0.4'
+    default: 'v1.0.5'
   github_token:
     description: "GitHub token for optional automatic GitHub Pages deployment (leave empty to skip)"
     required: false
