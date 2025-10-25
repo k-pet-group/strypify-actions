@@ -45,7 +45,7 @@ runs:
         fi
         for f in $FILES; do
           OUT_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
-          asciidoctor -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
+          PATH=./Strypify-linux-x64:$PATH asciidoctor -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
           echo "Converted $f → $OUT_FILE"
         done
 
