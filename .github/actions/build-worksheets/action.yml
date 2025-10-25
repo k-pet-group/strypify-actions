@@ -1,0 +1,71 @@
+name: 'Build and Publish AsciiDoc'
+description: 'Converts .adoc files to HTML and generates an index'
+author: 'K-PET Group'
+inputs:
+  output_dir:
+    description: 'Directory for generated HTML files'
+    required: false
+    default: 'build/html'
+  strypify_version:
+    description: The version (including leading v) of Strypify to use
+    required: false
+    default: 'v1.0.2'
+  github_token:
+    description: "GitHub token for optional automatic GitHub Pages deployment (leave empty to skip)"
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Asciidoctor
+      shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y ruby-full wget
+        sudo gem install asciidoctor
+    - name: Install Strypify
+      shell: bash
+      run: |
+        wget https://github.com/k-pet-group/strypify/releases/download/${{ inputs.strypify_version }}/Strypify-linux-x64.zip
+        # Unzips to Strypify-linux-x64 subdirectory:
+        unzip Strypify-linux-x64.zip
+        wget https://github.com/k-pet-group/strypify/releases/download/${{ inputs.strypify_version }}/strypify-plugin.rb
+
+    - name: Convert .adoc files to HTML
+      shell: bash
+      run: |
+        OUTPUT_DIR="${{ inputs.output_dir }}"
+        mkdir -p "$OUTPUT_DIR"
+        FILES=$(find . -name "*.adoc")
+        if [ -z "$FILES" ]; then
+          echo "No .adoc files found."
+          exit 0
+        fi
+        for f in $FILES; do
+          OUT_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
+          asciidoctor -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
+          echo "Converted $f → $OUT_FILE"
+        done
+
+    - name: Generate index.html
+      shell: bash
+      run: |
+        OUTPUT_DIR="${{ inputs.output_dir }}"
+        FILES=$(find . -name "*.adoc")
+        {
+          echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Worksheet Index</title></head><body><h1>Worksheets</h1><ul>"
+          for f in $FILES; do
+            fname=$(basename "${f%.adoc}.html")
+            echo "<li><a href='./$fname'>$fname</a></li>"
+          done
+          echo "</ul></body></html>"
+        } > "$OUTPUT_DIR/index.html"
+        echo "Generated index.html"
+
+    # Optionally deploy to GitHub Pages
+    - name: Deploy to GitHub Pages
+      if: ${{ inputs.github_token != '' }}
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ inputs.github_token }}
+        publish_dir: ${{ inputs.output_dir }}
