@@ -37,7 +37,8 @@ runs:
         OUTPUT_DIR="${{ inputs.output_dir }}"
         mkdir -p "$OUTPUT_DIR"
         echo "Looking in $(pwd)"
-        ls -lrt
+        ls -lrt .
+        ls -lrt Strypify-linux-x64
         FILES=$(find . -name "*.adoc")
         if [ -z "$FILES" ]; then
           echo "No .adoc files found."
@@ -45,7 +46,7 @@ runs:
         fi
         for f in $FILES; do
           OUT_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
-          PATH=./Strypify-linux-x64:$PATH asciidoctor -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
+          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
           echo "Converted $f → $OUT_FILE"
         done
 
