@@ -62,9 +62,9 @@ jobs:
           HTML_FILE="$(basename "${f%.adoc}.html")"
           PDF_FILE="$(basename "${f%.adoc}.pdf")"
           echo Generating $HTML_FILE
-          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$HTML_FILE" "$f" || echo "Failed to generate $HTML_FILE -- see logs" > "$HTML_FILE"
+          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$HTML_FILE" "$f" || echo "Failed to generate $HTML_FILE -- see logs"
           echo Generating $PDF_FILE
-          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$f" || echo "Failed to generate $PDF_FILE -- see logs" > "$PDF_FILE" 
+          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$f" || echo "Failed to generate $PDF_FILE -- see logs" 
         done
         # Show all the generated files:
         find .
@@ -77,9 +77,17 @@ jobs:
           echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Worksheet Index</title></head><body><h1>Worksheets</h1><ul>"
           for f in $FILES; do
             fname=$(basename "${f%.adoc}.html")
-            echo "<li><a href='./$fname'>$fname</a></li>"
+            echo "<li><a href='./$fname'>$fname</a>"
+            if [ ! -f $fname ]; then
+              echo " (failed to generate -- see logs)"
+            fi
+            echo "</li>"
             fname=$(basename "${f%.adoc}.pdf")
-            echo "<li><a href='./$fname'>$fname</a></li>"
+            echo "<li><a href='./$fname'>$fname</a>"
+            if [ ! -f $fname ]; then
+              echo " (failed to generate -- see logs)"
+            fi
+            echo "</li>"
           done
           echo "</ul></body></html>"
         } > "$OUTPUT_DIR/index.html"
