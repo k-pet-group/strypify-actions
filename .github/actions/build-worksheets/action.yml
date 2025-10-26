@@ -5,24 +5,34 @@ inputs:
   output_dir:
     description: 'Directory for generated HTML files'
     required: false
-    default: 'build/html'
+    default: 'build'
   strypify_version:
     description: The version (including leading v) of Strypify to use
     required: false
     default: 'v1.0.7'
-  github_token:
-    description: "GitHub token for optional automatic GitHub Pages deployment (leave empty to skip)"
-    required: false
 
-runs:
-  using: 'composite'
-  steps:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout calling repository
+      uses: actions/checkout@v4
     - name: Install Asciidoctor
       shell: bash
       run: |
         sudo apt-get update -y
         sudo apt-get install -y ruby-full wget
         sudo gem install asciidoctor
+        sudo gem install asciidoctor-pdf
     - name: Install Strypify
       shell: bash
       run: |
@@ -45,13 +55,12 @@ runs:
           exit 0
         fi
         for f in $FILES; do
-          OUT_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
-          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r ./strypify-plugin.rb -o "$OUT_FILE" "$f"
-          echo "Converted $f → $OUT_FILE"
-          ls $OUT_FILE
+          HTML_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
+          PDF_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.pdf")"
+          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r ./strypify-plugin.rb -o "$HTML_FILE" "$f" || echo Failed to generate $HTML_FILE
+          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r ./strypify-plugin.rb -o "$PDF_FILE" "$f" || echo Failed to generate $PDF_FILE
         done
-        ls $OUTPUT_DIR
-
+        ls -lrt $OUTPUT_DIR
     - name: Generate index.html
       shell: bash
       run: |
@@ -62,15 +71,20 @@ runs:
           for f in $FILES; do
             fname=$(basename "${f%.adoc}.html")
             echo "<li><a href='./$fname'>$fname</a></li>"
+            fname=$(basename "${f%.adoc}.pdf")
+            echo "<li><a href='./$fname'>$fname</a></li>"
           done
           echo "</ul></body></html>"
         } > "$OUTPUT_DIR/index.html"
         echo "Generated index.html"
 
-    # Optionally deploy to GitHub Pages
-    - name: Deploy to GitHub Pages
-      if: ${{ inputs.github_token != '' }}
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ inputs.github_token }}
-        publish_dir: ${{ inputs.output_dir }}
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
