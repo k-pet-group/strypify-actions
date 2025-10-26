@@ -1,6 +1,4 @@
-name: 'Build and Publish AsciiDoc'
-description: 'Converts .adoc files to HTML and generates an index'
-author: 'K-PET Group'
+name: 'Build and Publish AsciiDoc Worksheets to Github Pages'
 on:
   workflow_call:
     inputs:
@@ -8,10 +6,12 @@ on:
         description: 'Directory for generated HTML files'
         required: false
         default: 'build'
+        type: string
       strypify_version:
         description: The version (including leading v) of Strypify to use
         required: false
         default: 'v1.0.7'
+        type: string
 
 permissions:
   contents: read
