@@ -1,15 +1,17 @@
 name: 'Build and Publish AsciiDoc'
 description: 'Converts .adoc files to HTML and generates an index'
 author: 'K-PET Group'
-inputs:
-  output_dir:
-    description: 'Directory for generated HTML files'
-    required: false
-    default: 'build'
-  strypify_version:
-    description: The version (including leading v) of Strypify to use
-    required: false
-    default: 'v1.0.7'
+on:
+  workflow_call:
+    inputs:
+      output_dir:
+        description: 'Directory for generated HTML files'
+        required: false
+        default: 'build'
+      strypify_version:
+        description: The version (including leading v) of Strypify to use
+        required: false
+        default: 'v1.0.7'
 
 permissions:
   contents: read
@@ -30,7 +32,7 @@ jobs:
       shell: bash
       run: |
         sudo apt-get update -y
-        sudo apt-get install -y ruby-full wget
+        sudo apt-get install -y ruby-full wget unzip
         sudo gem install asciidoctor
         sudo gem install asciidoctor-pdf
     - name: Install Strypify
