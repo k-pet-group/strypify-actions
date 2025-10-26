@@ -62,9 +62,9 @@ jobs:
           HTML_FILE="$(basename "${f%.adoc}.html")"
           PDF_FILE="$(basename "${f%.adoc}.pdf")"
           echo Generating $HTML_FILE
-          PATH="$(SRC_DIR)/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$HTML_FILE" "$f" || echo "Failed to generate $HTML_FILE -- see logs" > "$HTML_FILE"
+          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$HTML_FILE" "$f" || echo "Failed to generate $HTML_FILE -- see logs" > "$HTML_FILE"
           echo Generating $PDF_FILE
-          PATH="$(SRC_DIR)/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$f" || echo "Failed to generate $PDF_FILE -- see logs" > "$PDF_FILE" 
+          PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$f" || echo "Failed to generate $PDF_FILE -- see logs" > "$PDF_FILE" 
         done
         # Show all the generated files:
         find .
