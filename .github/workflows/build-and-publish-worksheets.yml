@@ -48,22 +48,22 @@ jobs:
       run: |
         OUTPUT_DIR="${{ inputs.output_dir }}"
         mkdir -p "$OUTPUT_DIR"
+        SRC_DIR=$(pwd)
         echo "Looking in $(pwd)"
         ls -lrt .
         ls -lrt Strypify-linux-x64
-        FILES=$(find . -name "*.adoc")
+        FILES=$(find $SRC_DIR -name "*.adoc")
         if [ -z "$FILES" ]; then
           echo "No .adoc files found."
           exit 0
         fi
+        cd $OUTPUT_DIR
         for f in $FILES; do
-          HTML_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.html")"
-          PDF_FILE="$OUTPUT_DIR/$(basename "${f%.adoc}.pdf")"
-          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r ./strypify-plugin.rb -o "$HTML_FILE" "$f" || echo Failed to generate $HTML_FILE
-          PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r ./strypify-plugin.rb -o "$PDF_FILE" "$f" || echo Failed to generate $PDF_FILE
+          HTML_FILE="$(basename "${f%.adoc}.html")"
+          PDF_FILE="$(basename "${f%.adoc}.pdf")"
+          PATH="$(SRC_DIR)/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r ./strypify-plugin.rb -o "$HTML_FILE" "$f" || echo Failed to generate $HTML_FILE
+          PATH="$(SRC_DIR)/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r ./strypify-plugin.rb -o "$PDF_FILE" "$f" || echo Failed to generate $PDF_FILE
         done
-        ls -lrt $OUTPUT_DIR
-        cp -r .image-cache $OUTPUT_DIR
     - name: Generate index.html
       shell: bash
       run: |
