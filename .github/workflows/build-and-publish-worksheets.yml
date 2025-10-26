@@ -63,6 +63,7 @@ jobs:
           PATH="$(pwd)/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r ./strypify-plugin.rb -o "$PDF_FILE" "$f" || echo Failed to generate $PDF_FILE
         done
         ls -lrt $OUTPUT_DIR
+        cp -r .image-cache $OUTPUT_DIR
     - name: Generate index.html
       shell: bash
       run: |
