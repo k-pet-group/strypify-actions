@@ -48,6 +48,25 @@ jobs:
       run: |
         OUTPUT_DIR="${{ inputs.output_dir }}"
         mkdir -p "$OUTPUT_DIR"
+        
+        # Copy asset files across:
+        # Find and copy matching files (case-insensitive, mirror structure)
+        find "$SRC_DIR" -type f \
+          \( -iname "*.png" -o -iname "*.jpeg" -o -iname "*.jpg" -o \
+             -iname "*.webm" -o -iname "*.webp" -o -iname "*.pdf" -o \
+             -iname "*.css" -o -iname "*.html" -o -iname "*.htm" -o \
+             -iname "*.js" -o -iname "*.ts" -o -iname "*.wav" -o \
+             -iname "*.mp3" -o -iname "*.mpeg" -o -iname "*.mp4" \) \
+           | while IFS= read -r file; do
+               rel_path="${file#$SRC_DIR/}"                      # relative path
+               dest_dir="$OUTPUT_DIR/$(dirname "$rel_path")"     # target directory
+               mkdir -p "$dest_dir"                              # ensure directory exists
+               cp -p "$file" "$dest_dir/"                        # preserve timestamps/permissions
+               echo "Copied $file → $dest_dir/"
+             done
+        
+        
+        
         SRC_DIR=$(pwd)
         echo "Looking in $(pwd)"
         ls -lrt .
