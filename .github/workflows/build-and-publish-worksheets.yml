@@ -53,7 +53,7 @@ jobs:
         
         # Copy asset files across:
         # Find and copy matching files (case-insensitive, mirror structure)
-        find "$SRC_DIR" -type f \
+        find "$SRC_DIR" -type d -name "Strypify-linux-x64" -prune -o -type f \
           \( -iname "*.png" -o -iname "*.jpeg" -o -iname "*.jpg" -o \
              -iname "*.webm" -o -iname "*.webp" -o -iname "*.pdf" -o \
              -iname "*.css" -o -iname "*.html" -o -iname "*.htm" -o \
@@ -110,13 +110,13 @@ jobs:
         
             fname=$(basename "${f%.adoc}.html")
             echo "<li><a href='$REL_DIR/$fname'>$REL_DIR/$fname</a>"
-            if [ ! -f "$OUTPUT_DIR/$fname" ]; then
+            if [ ! -f "$OUTPUT_DIR/$REL_DIR/$fname" ]; then
               echo " (failed to generate -- see logs)"
             fi
             echo "</li>"
             fname=$(basename "${f%.adoc}.pdf")
             echo "<li><a href='$REL_DIR/$fname'>$REL_DIR/$fname</a>"
-            if [ ! -f "$OUTPUT_DIR/$fname" ]; then
+            if [ ! -f "$OUTPUT_DIR/$REL_DIR/$fname" ]; then
               echo " (failed to generate -- see logs)"
             fi
             echo "</li>"
