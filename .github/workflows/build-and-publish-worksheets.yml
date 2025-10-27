@@ -48,6 +48,8 @@ jobs:
       run: |
         OUTPUT_DIR="${{ inputs.output_dir }}"
         mkdir -p "$OUTPUT_DIR"
+        SRC_DIR=$(pwd)
+        echo "Looking in $(pwd)"
         
         # Copy asset files across:
         # Find and copy matching files (case-insensitive, mirror structure)
@@ -65,12 +67,6 @@ jobs:
                echo "Copied $file → $dest_dir/"
              done
         
-        
-        
-        SRC_DIR=$(pwd)
-        echo "Looking in $(pwd)"
-        ls -lrt .
-        ls -lrt Strypify-linux-x64
         FILES=$(find $SRC_DIR -name "*.adoc")
         if [ -z "$FILES" ]; then
           echo "No .adoc files found."
