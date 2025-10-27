@@ -57,8 +57,16 @@ jobs:
           echo "No .adoc files found."
           exit 0
         fi
-        cd $OUTPUT_DIR
+        
         for f in $FILES; do
+          # Compute relative path (strip the leading SRC_DIR/)
+          REL_PATH="${f#$SRC_DIR/}"
+          # Compute output subdirectory path (everything before the filename)
+          REL_DIR="$(dirname "$REL_PATH")"
+          # Make sure that directory exists in OUTPUT_DIR
+          mkdir -p "$OUTPUT_DIR/$REL_DIR"
+          cd "$OUTPUT_DIR/$REL_DIR"
+        
           HTML_FILE="$(basename "${f%.adoc}.html")"
           PDF_FILE="$(basename "${f%.adoc}.pdf")"
           cp $f .
@@ -75,18 +83,24 @@ jobs:
       shell: bash
       run: |
         OUTPUT_DIR="${{ inputs.output_dir }}"
-        FILES=$(find . -name "*.adoc")
+        SRC_DIR=$(pwd)
+        FILES=$(find $SRC_DIR -name "*.adoc")
         {
           echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Worksheet Index</title></head><body><h1>Worksheets</h1><ul>"
           for f in $FILES; do
+            # Compute relative path (strip the leading SRC_DIR/)
+            REL_PATH="${f#$SRC_DIR/}"
+            # Compute output subdirectory path (everything before the filename)
+            REL_DIR="$(dirname "$REL_PATH")"
+        
             fname=$(basename "${f%.adoc}.html")
-            echo "<li><a href='./$fname'>$fname</a>"
+            echo "<li><a href='$REL_DIR/$fname'>$REL_DIR/$fname</a>"
             if [ ! -f "$OUTPUT_DIR/$fname" ]; then
               echo " (failed to generate -- see logs)"
             fi
             echo "</li>"
             fname=$(basename "${f%.adoc}.pdf")
-            echo "<li><a href='./$fname'>$fname</a>"
+            echo "<li><a href='$REL_DIR/$fname'>$REL_DIR/$fname</a>"
             if [ ! -f "$OUTPUT_DIR/$fname" ]; then
               echo " (failed to generate -- see logs)"
             fi
