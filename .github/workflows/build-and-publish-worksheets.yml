@@ -93,9 +93,9 @@ jobs:
           PDF_FILE="$(basename "${f%.adoc}.pdf")"
           cp $f .
           SRC_FILE="$(basename "$f")"
-          echo Generating $HTML_FILE
+          echo Generating $HTML_FILE in $OUTPUT_DIR/$REL_DIR based on comparing $f to $SRC_DIR
           PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$HTML_FILE" "$SRC_FILE" || echo "Failed to generate $HTML_FILE -- see logs"
-          echo Generating $PDF_FILE
+          echo Generating $PDF_FILE in $OUTPUT_DIR/$REL_DIR based on comparing $f to $SRC_DIR
           PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$SRC_FILE" || echo "Failed to generate $PDF_FILE -- see logs"
           rm $SRC_FILE 
         done
