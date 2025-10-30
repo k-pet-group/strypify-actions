@@ -107,7 +107,7 @@ jobs:
       run: |
         OUTPUT_DIR="${{ inputs.output_dir }}"
         SRC_DIR=$(pwd)
-        FILES=$(find $SRC_DIR -name "*.adoc")
+        FILES=$(find $SRC_DIR -path "$SRC_DIR/Strypify-linux-x64" -prune -o -type f \(-name "*.adoc"\) -print)
         {
           echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Worksheet Index</title></head><body><h1>Worksheets</h1><ul>"
           for f in $FILES; do
