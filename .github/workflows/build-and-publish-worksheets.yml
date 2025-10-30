@@ -74,7 +74,7 @@ jobs:
                echo "Copied $file → $dest_dir/"
              done
         
-        FILES=$(find $SRC_DIR -name "*.adoc")
+        FILES=$(find $SRC_DIR -path "$SRC_DIR/Strypify-linux-x64" -prune -o -type f \(-name "*.adoc"\) -print)
         if [ -z "$FILES" ]; then
           echo "No .adoc files found."
           exit 0
@@ -87,7 +87,7 @@ jobs:
           REL_DIR="$(dirname "$REL_PATH")"
           # Make sure that directory exists in OUTPUT_DIR
           mkdir -p "$OUTPUT_DIR/$REL_DIR"
-          cd "$OUTPUT_DIR/$REL_DIR"
+          pushd "$OUTPUT_DIR/$REL_DIR"
         
           HTML_FILE="$(basename "${f%.adoc}.html")"
           PDF_FILE="$(basename "${f%.adoc}.pdf")"
@@ -98,6 +98,7 @@ jobs:
           echo Generating $PDF_FILE in $OUTPUT_DIR/$REL_DIR based on comparing $f to $SRC_DIR
           PATH="$SRC_DIR/Strypify-linux-x64:$PATH" asciidoctor-pdf -v --trace -r "$SRC_DIR/strypify-plugin.rb" -o "$PDF_FILE" "$SRC_FILE" || echo "Failed to generate $PDF_FILE -- see logs"
           rm $SRC_FILE 
+          popd
         done
         # Show all the generated files:
         find .
