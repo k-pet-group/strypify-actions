@@ -8,9 +8,9 @@ on:
         default: 'build'
         type: string
       strypify_version:
-        description: The version (including leading v) of Strypify to use
+        description: The version (including leading v) of Strypify to use, or 'latest' for the latest (the default).
         required: false
-        default: 'v1.1.5'
+        default: 'latest'
         type: string
 
 permissions:
@@ -38,10 +38,17 @@ jobs:
     - name: Install Strypify
       shell: bash
       run: |
-        wget https://github.com/k-pet-group/strypify/releases/download/${{ inputs.strypify_version }}/Strypify-linux-x64.zip
+        VERSION="${{ inputs.strypify_version }}"
+        if [[ "$VERSION" == "latest" ]]; then
+          URL="https://github.com/k-pet-group/strypify/releases/latest/download"
+        else
+          URL="https://github.com/k-pet-group/strypify/releases/download/$VERSION"
+        fi
+        
+        wget $URL/Strypify-linux-x64.zip
         # Unzips to Strypify-linux-x64 subdirectory:
         unzip Strypify-linux-x64.zip
-        wget https://github.com/k-pet-group/strypify/releases/download/${{ inputs.strypify_version }}/strypify-plugin.rb
+        wget $URL/strypify-plugin.rb
 
     - name: Convert .adoc files to HTML
       shell: bash
